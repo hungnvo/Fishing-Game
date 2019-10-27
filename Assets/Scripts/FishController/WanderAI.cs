@@ -6,14 +6,15 @@ using UnityEngine.AI;
 public class WanderAI : MonoBehaviour
 {
     Vector3 desiredMove = Vector3.zero;
-    private float wanderRadius = 100f;
-    private float delayTime = 5f;
+    private float wanderRadius = 1000f;
+    private float delayTime;
     private NavMeshAgent agent;
     private float timer;
     
     // Start is called before the first frame update
     void Start()
     {
+        delayTime = Random.Range(3f,7f);
         agent = GetComponent<NavMeshAgent>();
         timer = delayTime;
     }
