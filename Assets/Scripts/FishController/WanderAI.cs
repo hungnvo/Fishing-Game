@@ -10,6 +10,8 @@ public class WanderAI : MonoBehaviour
     private float delayTime;
     private NavMeshAgent agent;
     private float timer;
+    public AIstate state;
+    public GameObject bobber;
     
     // Start is called before the first frame update
     void Start()
@@ -17,17 +19,40 @@ public class WanderAI : MonoBehaviour
         delayTime = Random.Range(3f,7f);
         agent = GetComponent<NavMeshAgent>();
         timer = delayTime;
+        state = AIstate.wander;
     }
 
     // Update is called once per frame
     void Update()
     {
         timer += Time.deltaTime;
-        if (timer >= delayTime) {
-            Vector3 target = RandomTarget(agent.transform.position, wanderRadius);
-            agent.SetDestination(target);
-            timer = 0;
+        switch (state)
+        {
+            case AIstate.wander:
+                if (timer >= delayTime)
+                {
+                    Vector3 target = RandomTarget(agent.transform.position, wanderRadius);
+                    agent.SetDestination(target);
+                    timer = 0;
+                }
+                if (bobber.GetComponent<Renderer>().enabled) {
+                    if (Vector3.Distance(agent.transform.position, bobber.transform.position) <= 100)
+                    {
+                        state = AIstate.chase;
+                    }
+                }
+            break;
+            case AIstate.chase:
+                agent.SetDestination(bobber.transform.position);
+                if (Vector3.Distance(agent.transform.position, bobber.transform.position) > 100)
+                {
+                    state = AIstate.wander;
+                }
+            break;
+            default:
+            break;
         }
+        
     }
     Vector3 RandomTarget(Vector3 origin, float dist) 
     {
@@ -37,4 +62,9 @@ public class WanderAI : MonoBehaviour
         NavMesh.SamplePosition(random, out hit, dist, NavMesh.AllAreas);
         return hit.position;
     }
+    public enum AIstate
+    {
+        wander,
+        chase
+    };
 }
